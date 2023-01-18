@@ -52,7 +52,7 @@ pipeline {
                 sh '''#! /bin/bash
 				      docker pull ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)
 					  if [ $? -ne 0 ]; then
-					    echo "It doesn't look like "ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)" exists on ghcr, building an empty image 
+					    echo "It doesn't look like \"ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)\" exists on ghcr, building an empty image"
 					    docker build . -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) -f Dockerfile.empty
 					  fi
                       docker build \
