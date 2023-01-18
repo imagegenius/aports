@@ -2,7 +2,7 @@
 
 This repo builds and uploads the alpine packages location in the `ig` folder.
 
-For now the packages are just uploaded to an image, from which the images can be extracted:
+For now the packages are just uploaded to an image, from which the packages can be extracted:
 
 ```bash
 # create the container to copy the packages from
