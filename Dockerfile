@@ -9,7 +9,7 @@ ENV PACKAGER_PRIVKEY="/config/.abuild/ig.rsa"
 ARG PRIVKEY
 ARG ALPINETAG
 
-COPY --from=cache /alpine/v${ALPINETAG} /config/packages/
+COPY --from=cache /v${ALPINETAG} /config/packages/
 
 RUN \
   echo "**** install runtime packages ****" && \
