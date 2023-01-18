@@ -7,8 +7,9 @@ FROM alpine:${ALPINETAG} as builder
 
 ENV PACKAGER_PRIVKEY="/config/.abuild/ig.rsa"
 ARG PRIVKEY
+ARG ALPINETAG
 
-COPY --from=cache / /config/packages/
+COPY --from=cache /alpine/v${ALPINETAG} /config/packages/
 
 RUN \
   echo "**** install runtime packages ****" && \
@@ -22,11 +23,13 @@ RUN \
   adduser -h /config -D abc && \
   echo 'abc ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers && \
   addgroup abc abuild && \
+  echo "**** configure abuild/copy keys ****" && \
   mkdir -p /config/.abuild/ && \
   echo -e "$PRIVKEY" >/config/.abuild/ig.rsa && \
   PUBKEY=$(curl -s https://packages.hyde.services/ig.rsa.pub) && \
   echo -e "$PUBKEY" >/config/.abuild/ig.rsa.pub && \
   echo -e "$PUBKEY" >/etc/apk/keys/ig.rsa.pub && \
+  echo "**** clone aports repo and run buildrepo ****" && \
   git clone https://github.com/imagegenius/aports /config/aports && \
   abuild-apk update && \
   apk update && \
@@ -36,4 +39,4 @@ RUN \
 FROM scratch
 
 ARG ALPINETAG
-COPY --from=builder /config/packages/ /v${ALPINETAG}
+COPY --from=builder /config/packages/ /alpine/v${ALPINETAG}

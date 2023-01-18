@@ -7,5 +7,5 @@ FROM ghcr.io/imagegenius/aports-cache:v3.17-aarch64 as v3.17-aarch64
 FROM scratch
 
 # e.g 'COPY --from=v<ALPINETAG>-<arch> / /'
-COPY --from=v3.17-x86_64 / /
-COPY --from=v3.17-aarch64 / /
+COPY --from=v3.17-x86_64 /alpine/* /out
+COPY --from=v3.17-aarch64 /alpine/* /out
