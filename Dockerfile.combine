@@ -1,0 +1,11 @@
+# this file needs to be modified to match list of 'ALPINETAG's in the Jenkins matrix
+
+# e.g 'FROM ghcr.io/imagegenius/aports-<ALPINETAG>-cache:<arch> as <ALPINETAG>-<arch>'
+FROM ghcr.io/imagegenius/aports-3.17-cache:x86_64 as 3.17-x86_64
+FROM ghcr.io/imagegenius/aports-3.17-cache:aarch64 as 3.17-aarch64
+
+FROM scratch
+
+# e.g 'COPY --from=<ALPINETAG>-<arch> / /'
+COPY --from=3.17-x86_64 / /
+COPY --from=3.17-aarch64 / /
