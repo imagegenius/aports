@@ -78,8 +78,3 @@ gtk() {
 	amove usr/bin/deluge-gtk
 	amove usr/lib/python3*/site-packages/deluge/ui/gtk3
 }
-
-sha512sums="
-e94208981aee45f42b88e1c544b07e7b0d0f2c4ade6b7f37257b69d4a3394c89aff217cde699e79ad59de6d2ee4eca7a558f2b85505d2140ba73f1f76f184455  deluge-2.1.1.tar.xz
-003696606e6114baca618e734d283acaebeec2c49ece82b0bcf385e026149a38943c82b270a6b0ab7b30e80640365a750cc275ea9a6b7e67078d10cfd3ef87a5  deluge.desktop
-"
