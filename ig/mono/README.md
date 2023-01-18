@@ -1,0 +1,1 @@
+Stolen from [spritsail/mono-apk](https://github.com/spritsail/mono-apk)

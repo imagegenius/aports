@@ -1,0 +1,42 @@
+From 7ea76f5bead1d7c8f80e09232351f243e9ab981d Mon Sep 17 00:00:00 2001
+From: Rickard Lyrenius <rly@combination.se>
+Date: Fri, 5 Jun 2020 00:05:32 +0200
+Subject: Avoid setting PTHREAD_PRIO_INHERIT on Alpine, since this causes
+ deadlocks
+
+---
+ configure.ac               | 5 +++++
+ mono/utils/mono-os-mutex.h | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 6eb961f9dda..ad29946527f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -320,6 +320,11 @@ case "$host" in
+                 	# available during cross-compilation
+                 	mono_cv_uscore=no
+                 fi
++                case "$host" in
++                *-musl)
++                        AC_DEFINE(MUSL, 1, [musl libc])
++                        ;;
++                esac
+ 		case "$host" in
+ 		*-tizen-linux-*)
+ 			platform_tizen=yes
+diff --git a/mono/utils/mono-os-mutex.h b/mono/utils/mono-os-mutex.h
+index 8b2f530f108..904974b0a08 100644
+--- a/mono/utils/mono-os-mutex.h
++++ b/mono/utils/mono-os-mutex.h
+@@ -59,7 +59,7 @@ mono_os_mutex_init_type (mono_mutex_t *mutex, int type)
+ 	if (G_UNLIKELY (res != 0))
+ 		g_error ("%s: pthread_mutexattr_settype failed with \"%s\" (%d)", __func__, g_strerror (res), res);
+ 
+-#if !defined(__HAIKU__) && defined (PTHREAD_PRIO_INHERIT) && HAVE_DECL_PTHREAD_MUTEXATTR_SETPROTOCOL
++#if !defined(__HAIKU__) && !defined(MUSL) && defined (PTHREAD_PRIO_INHERIT) && HAVE_DECL_PTHREAD_MUTEXATTR_SETPROTOCOL
+ 	/* use PTHREAD_PRIO_INHERIT if possible */
+ 	res = pthread_mutexattr_setprotocol (&attr, PTHREAD_PRIO_INHERIT);
+ 	if (G_UNLIKELY (res != 0 && res != ENOTSUP))
+-- 
+2.27.0

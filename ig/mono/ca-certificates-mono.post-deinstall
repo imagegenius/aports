@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+rm -rf /usr/share/.mono/certs /usr/share/.mono/new-certs
+rmdir -p /usr/share/.mono
