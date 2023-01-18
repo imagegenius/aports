@@ -50,16 +50,22 @@ pipeline {
                    '''
                 echo 'Building packages'
                 sh '''#! /bin/bash
-				      docker pull ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)
-					  if [ $? -ne 0 ]; then
-					    echo "It doesn't look like \"ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)\" exists on ghcr, building an empty image"
-					    docker build . -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) -f Dockerfile.empty
-					  fi
-                      docker build \
-                        --no-cache --pull -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) \
-                        --build-arg PRIVKEY="$PRIVKEY" \
-                        --build-arg ALPINETAG=${ALPINETAG} \
-                        --build-arg ARCH=$(arch) .
+                      docker pull ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)
+                      if [ $? -ne 0 ]; then
+                        echo "It doesn't look like \"ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)\" exists on ghcr, building an empty image"
+                        docker build . -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) -f Dockerfile.empty
+                        docker build \
+                          --no-cache -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) \
+                          --build-arg PRIVKEY="$PRIVKEY" \
+                          --build-arg ALPINETAG=${ALPINETAG} \
+                          --build-arg ARCH=$(arch) .
+                      else
+                        docker build \
+                          --no-cache --pull -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) \
+                          --build-arg PRIVKEY="$PRIVKEY" \
+                          --build-arg ALPINETAG=${ALPINETAG} \
+                          --build-arg ARCH=$(arch) .
+                      fi
                    '''
                 echo 'Pushing image to ghcr'
                 sh '''#! /bin/bash
