@@ -51,16 +51,16 @@ pipeline {
                 echo 'Building packages'
                 sh '''#! /bin/bash
                       docker build \
-                        --no-cache --pull -t ghcr.io/imagegenius/aports-${ALPINETAG}-cache:$(arch) \
+                        --no-cache --pull -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) \
                         --build-arg PRIVKEY="$PRIVKEY" \
                         --build-arg ALPINETAG=${ALPINETAG} \
                         --build-arg ARCH=$(arch) .
                    '''
-                echo 'Pushing images to ghcr'
+                echo 'Pushing image to ghcr'
                 sh '''#! /bin/bash
-                      docker push ghcr.io/imagegenius/aports-${ALPINETAG}-cache:$(arch)
+                      docker push ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)
                       docker rmi \
-                        ghcr.io/imagegenius/aports-${ALPINETAG}-cache:$(arch) || :
+                        ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) || :
                    '''
               }
             }
@@ -70,15 +70,22 @@ pipeline {
     }
     stage ('Build And Push Combined Image') {
       steps {
+        echo 'Logging into Github'
+        sh '''#! /bin/bash
+              echo $GITHUB_TOKEN | docker login ghcr.io -u ImageGenius-CI --password-stdin
+           '''
+        echo 'Building combined image'
         sh '''#! /bin/bash
               docker build \
-                --no-cache --pull -t ghcr.io/imagegenius/aports-cache:latest \
+                --no-cache --pull -t ghcr.io/imagegenius/aports-combined:latest \
                 . -f Dockerfile.combine
-                docker push ghcr.io/imagegenius/aports-cache:latest
-                docker rmi \
-                  ghcr.io/imagegenius/aports-cache:latest || :
            '''
-        }
+        echo 'Pushing image to ghcr'
+        sh '''#! /bin/bash
+              docker push ghcr.io/imagegenius/aports-combined:latest
+              docker rmi \
+                ghcr.io/imagegenius/aports-combined:latest || :
+           '''
       }
     }
   }

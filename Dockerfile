@@ -1,6 +1,6 @@
 ARG ALPINETAG
 ARG ARCH
-FROM ghcr.io/imagegenius/aports-${ALPINETAG}-cache:${ARCH} as cache
+FROM ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-${ARCH} as cache
 
 ARG ALPINETAG
 FROM alpine:${ALPINETAG} as builder
@@ -36,4 +36,4 @@ RUN \
 FROM scratch
 
 ARG ALPINETAG
-COPY --from=builder /config/packages/ /alpine/v${ALPINETAG}
+COPY --from=builder /config/packages/ /v${ALPINETAG}
