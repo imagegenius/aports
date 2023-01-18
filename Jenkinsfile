@@ -50,6 +50,11 @@ pipeline {
                    '''
                 echo 'Building packages'
                 sh '''#! /bin/bash
+				      docker pull ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)
+					  if [ $? -ne 0 ]; then
+					    echo "It doesn't look like "ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)" exists on ghcr, building an empty image 
+					    docker build . -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) -f Dockerfile.empty
+					  fi
                       docker build \
                         --no-cache --pull -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) \
                         --build-arg PRIVKEY="$PRIVKEY" \
@@ -77,14 +82,14 @@ pipeline {
         echo 'Building combined image'
         sh '''#! /bin/bash
               docker build \
-                --no-cache --pull -t ghcr.io/imagegenius/aports-combined:latest \
+                --no-cache --pull -t ghcr.io/imagegenius/aports:latest \
                 . -f Dockerfile.combine
            '''
         echo 'Pushing image to ghcr'
         sh '''#! /bin/bash
-              docker push ghcr.io/imagegenius/aports-combined:latest
+              docker push ghcr.io/imagegenius/aports:latest
               docker rmi \
-                ghcr.io/imagegenius/aports-combined:latest || :
+                ghcr.io/imagegenius/aports:latest || :
            '''
       }
     }
