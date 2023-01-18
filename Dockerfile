@@ -24,7 +24,7 @@ RUN \
   addgroup abc abuild && \
   mkdir -p /config/.abuild/ && \
   echo -e "$PRIVKEY" >/config/.abuild/ig.rsa && \
-  PUBKEY=$(curl -s https://packages.hyde.services/ig.rsa.pub)
+  PUBKEY=$(curl -s https://packages.hyde.services/ig.rsa.pub) && \
   echo -e "$PUBKEY" >/config/.abuild/ig.rsa.pub && \
   echo -e "$PUBKEY" >/etc/apk/keys/ig.rsa.pub && \
   git clone https://github.com/imagegenius/aports /config/aports && \
