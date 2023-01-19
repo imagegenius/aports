@@ -79,6 +79,29 @@ pipeline {
         }
       }
     }
+    stage ('Copy Packages to Webroot') {
+      steps {
+        sh '''#!/bin/bash
+              versions=(3.17)
+              arches=(x86_64 aarch64)
+
+              for version in "${versions[@]}"; do
+                for arch in "${arches[@]}"; do
+                  docker pull ghcr.io/imagegenius/aports-cache:v${version}-${arch}
+                            
+                  docker create --name aports-${version}-${arch} ghcr.io/imagegenius/aports-cache:v${version}-${arch} blah
+              
+                  docker cp aports-${version}-${arch}:/aports .
+              
+                  docker rm aports-${version}-${arch}
+                  docker rmi ghcr.io/imagegenius/aports-cache:v${version}-${arch}
+                done
+              done
+              rsync -av --delete aports/* /var/www/packages/
+              rm -rf aports
+           '''
+      }
+    }
   }
   post {
     always {
