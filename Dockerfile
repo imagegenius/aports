@@ -16,8 +16,7 @@ RUN \
   apk add --no-cache \
     alpine-sdk \
     git \
-	sudo \
-	bash \
+    sudo \
     aports-build && \
   echo "**** create abc user and setup sudo ****" && \
   adduser -h /config -D abc && \
@@ -39,4 +38,4 @@ RUN \
 FROM scratch
 
 ARG ALPINETAG
-COPY --from=builder /config/packages/ /alpine/v${ALPINETAG}
+COPY --from=builder /config/packages/ig /aports/v${ALPINETAG}

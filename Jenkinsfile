@@ -79,26 +79,6 @@ pipeline {
         }
       }
     }
-    stage ('Build And Push Combined Image') {
-      steps {
-        echo 'Logging into Github'
-        sh '''#! /bin/bash
-              echo $GITHUB_TOKEN | docker login ghcr.io -u ImageGenius-CI --password-stdin
-           '''
-        echo 'Building combined image'
-        sh '''#! /bin/bash
-              docker build \
-                --no-cache --pull -t ghcr.io/imagegenius/aports:latest \
-                . -f Dockerfile.combine
-           '''
-        echo 'Pushing image to ghcr'
-        sh '''#! /bin/bash
-              docker push ghcr.io/imagegenius/aports:latest
-              docker rmi \
-                ghcr.io/imagegenius/aports:latest || :
-           '''
-      }
-    }
   }
   post {
     always {
