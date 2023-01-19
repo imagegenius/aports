@@ -73,6 +73,16 @@ pipeline {
                       docker rmi \
                         ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) || :
                    '''
+                echo "Removing dangling images"
+                sh '''#!/bin/bash
+                      dangling_images=$(docker images -f dangling=true -q)
+                      if [ -n "$dangling_images" ]; then
+                        echo "Removing dangling images..."
+                        docker rmi $dangling_images
+                      else
+                        echo "No dangling images found."
+                      fi
+               '''
               }
             }
           }
