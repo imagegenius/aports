@@ -1,9 +1,9 @@
-# Maintainer: Sasha Gerrand <alpine-pkgs@sgerrand.com>
+# Maintainer: SpectX DevOps <devops@spectx.com>
 
 pkgname="glibc"
 pkgver="2.35"
 _pkgrel="0"
-pkgrel="0"
+pkgrel="1"
 pkgdesc="GNU C Library compatibility layer"
 arch="x86_64 aarch64"
 url="https://github.com/sgerrand/alpine-pkg-glibc"
@@ -27,8 +27,8 @@ package() {
 	rm -rf "$pkgdir"/usr/glibc-compat/lib/audit
 	rm -rf "$pkgdir"/usr/glibc-compat/share
 	rm -rf "$pkgdir"/usr/glibc-compat/var
-	ln -s /usr/glibc-compat/lib/ld-linux-$CARCH.so.2 ${pkgdir}/lib/ld-linux-$CARCH.so.2
-	ln -s /usr/glibc-compat/lib/ld-linux-$CARCH.so.2 ${pkgdir}/usr/glibc-compat/lib64/ld-linux-$CARCH.so.2
+	ln -s /usr/glibc-compat/lib/ld-linux-$CARCH.so.1 ${pkgdir}/lib/ld-linux-$CARCH.so.1
+	ln -s /usr/glibc-compat/lib/ld-linux-$CARCH.so.1 ${pkgdir}/usr/glibc-compat/lib64/ld-linux-$CARCH.so.1
 	ln -s /usr/glibc-compat/etc/ld.so.cache ${pkgdir}/etc/ld.so.cache
 }
 
