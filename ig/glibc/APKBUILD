@@ -2,13 +2,13 @@
 
 pkgname="glibc"
 pkgver="2.35"
-_pkgrel="2"
-pkgrel="2"
+rlrel="1"
+pkgrel="3"
 pkgdesc="GNU C Library compatibility layer"
 arch="x86_64 aarch64"
-url="https://github.com/sgerrand/alpine-pkg-glibc"
+url="https://github.com/imagegenius/docker-glibc-builder"
 license="LGPL"
-source="https://github.com/imagegenius/docker-glibc-builder/releases/download/$pkgver-$_pkgrel/glibc-bin-$pkgver-$CARCH.tar.gz
+source="$url/releases/download/$pkgver-ig$rlrel/glibc-bin-$pkgver-$CARCH.tar.gz
 nsswitch.conf
 ld.so.conf"
 subpackages="$pkgname-bin $pkgname-dev $pkgname-i18n"
@@ -52,13 +52,13 @@ i18n() {
 
 if [ "$CARCH" = "x86_64" ]; then
 	sha512sums="
-65d13fac0fe7caa6701a149dd0680bc70a76ed8c959c1ee3bf678d1a61d343bfb2c4ea12d34201e970c85c3ec340da25adf0cf296bfe8a453219868cd9b09072  glibc-bin-2.35-x86_64.tar.gz
+964f63503f6f6c5cbd97b33a4672606dd5b59c0ed0b2f58404dbac4c444da6f9719404b66865ba6d43f4f40d7f71366bf31b97b76913127fb4cd6b6d8c8c4339  glibc-bin-2.35-x86_64.tar.gz
 478bdd9f7da9e6453cca91ce0bd20eec031e7424e967696eb3947e3f21aa86067aaf614784b89a117279d8a939174498210eaaa2f277d3942d1ca7b4809d4b7e  nsswitch.conf
 2912f254f8eceed1f384a1035ad0f42f5506c609ec08c361e2c0093506724a6114732db1c67171c8561f25893c0dd5c0c1d62e8a726712216d9b45973585c9f7  ld.so.conf
 "
 elif [ "$CARCH" = "aarch64" ]; then
 	sha512sums="
-801fb237583f979ab8c3075428cb7a752cd3d4bed0bc50aab7761a0e14c25b154dca658b27f678e59a637da1e56c327e8860fe8ca27c92215c12c6fe1344950e  glibc-bin-2.35-aarch64.tar.gz
+485fdf6384f59b8a2e45729d69c9faa4e00725e22e4c3e7d6ca708fbd1a059a423723e21628d09f1585b0cecbc871395a903f1fcf0334b7e98879386217aaccb  glibc-bin-2.35-aarch64.tar.gz
 478bdd9f7da9e6453cca91ce0bd20eec031e7424e967696eb3947e3f21aa86067aaf614784b89a117279d8a939174498210eaaa2f277d3942d1ca7b4809d4b7e  nsswitch.conf
 2912f254f8eceed1f384a1035ad0f42f5506c609ec08c361e2c0093506724a6114732db1c67171c8561f25893c0dd5c0c1d62e8a726712216d9b45973585c9f7  ld.so.conf
 "
