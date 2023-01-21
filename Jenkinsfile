@@ -100,8 +100,8 @@ pipeline {
     }
     stage ('Download Packages') {
       steps {
-		// 'version' and 'arches' need to match matrix axis'
-		echo "Get packages from images"
+        // 'version' and 'arches' need to match matrix axis'
+        echo "Get packages from images"
         sh '''#!/bin/bash
               versions=(3.17)
               arches=(x86_64 aarch64)
@@ -115,10 +115,8 @@ pipeline {
                   docker rmi ${GITHUBIMAGE}:v${version}-${arch}
                 done
               done
-              rsync -av --delete aports/* /var/www/packages/
-              rm -rf aports
            '''
-		echo "Copy Packages to Webroot"
+        echo "Copy Packages to Webroot"
         sh '''#!/bin/bash
               rsync -av --delete aports/* /var/www/packages/
               rm -rf aports
@@ -137,9 +135,9 @@ pipeline {
         ]) {
           sh '''#!/bin/bash
                 curl -X POST https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache \
-			      -H "Authorization: Bearer ${CF_API_KEY}" \
-			      -H "Content-Type: application/json" \
-			      --data '{"files":["http://packages.imagegenius.io/*"]}'
+                  -H "Authorization: Bearer ${CF_API_KEY}" \
+                  -H "Content-Type: application/json" \
+                  --data '{"files":["http://packages.imagegenius.io/*/*/*"]}'
            '''
         }
       }

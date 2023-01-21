@@ -1,9 +1,10 @@
-# Maintainer: SpectX DevOps <devops@spectx.com>
+# Contributor: Sasha Gerrand <alpine-pkgs@sgerrand.com>
+# Maintainer: hydaz <ci@imagegenius.io>
 
 pkgname="glibc"
 pkgver="2.35"
 rlrel="1"
-pkgrel="3"
+pkgrel="5"
 pkgdesc="GNU C Library compatibility layer"
 arch="x86_64 aarch64"
 url="https://github.com/imagegenius/docker-glibc-builder"

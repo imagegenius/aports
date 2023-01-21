@@ -1,8 +1,7 @@
-# vim: ft=sh noet
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Contributor: blattersturm <peachypies@protonmail.ch>
 # Contributor: frebib <mono-apk@spritsail.io>
-# Maintainer: Alex Hyde <alexanderhyde@icloud.com>
+# Maintainer: hydaz <ci@imagegenius.io>
 
 pkgname=mono
 pkgver=6.12.0.182
