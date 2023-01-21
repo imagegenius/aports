@@ -133,11 +133,12 @@ pipeline {
             passwordVariable: 'CF_API_KEY'
           ]
         ]) {
+		  // would be better to purge everything under packages.imagegenius.io/ but cant get it to work
           sh '''#!/bin/bash
                 curl -X POST https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache \
                   -H "Authorization: Bearer ${CF_API_KEY}" \
                   -H "Content-Type: application/json" \
-                  --data '{"files":["http://packages.imagegenius.io/*/*/*"]}'
+                  --data '{"purge_everything":true}' 
            '''
         }
       }
