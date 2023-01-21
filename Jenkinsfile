@@ -10,8 +10,17 @@ pipeline {
   environment {
     BUILDS_DISCORD=credentials('build_webhook_url')
     GITHUB_TOKEN=credentials('github_token')
+    IG_USER = 'imagegenius'
+    IG_REPO = 'aports'
   }
   stages {
+    stage("Set ENV Variables"){
+      steps{
+        script{
+          env.GITHUBIMAGE = 'ghcr.io/' + env.IG_USER + '/' + env.IG_REPO + '-cache'
+        }
+      }
+    }
     stage('Build-Multi') {
       matrix {
         axes {
@@ -45,33 +54,33 @@ pipeline {
                 string(credentialsId: 'package-private-key', variable: 'PRIVKEY'),
                 ]) {
                 echo 'Logging into Github'
-                sh '''#! /bin/bash
+                sh '''#!/bin/bash
                       echo $GITHUB_TOKEN | docker login ghcr.io -u ImageGenius-CI --password-stdin
                    '''
                 echo 'Building packages'
-                sh '''#! /bin/bash
-                      docker pull ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)
+                sh '''#!/bin/bash
+                      docker pull ${GITHUBIMAGE}:v${ALPINETAG}-$(arch)
                       if [ $? -ne 0 ]; then
-                        echo "It doesn't look like \"ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)\" exists on ghcr, building an empty image"
-                        docker build . -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) -f Dockerfile.empty
+                        echo "It doesn't look like \"${GITHUBIMAGE}:v${ALPINETAG}-$(arch)\" exists on ghcr, building an empty image"
+                        docker build . -t ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) -f Dockerfile.empty
                         docker build \
-                          --no-cache -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) \
+                          --no-cache -t ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) \
                           --build-arg PRIVKEY="$PRIVKEY" \
                           --build-arg ALPINETAG=${ALPINETAG} \
                           --build-arg ARCH=$(arch) .
                       else
                         docker build \
-                          --no-cache --pull -t ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) \
+                          --no-cache --pull -t ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) \
                           --build-arg PRIVKEY="$PRIVKEY" \
                           --build-arg ALPINETAG=${ALPINETAG} \
                           --build-arg ARCH=$(arch) .
                       fi
                    '''
                 echo 'Pushing image to ghcr'
-                sh '''#! /bin/bash
-                      docker push ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch)
+                sh '''#!/bin/bash
+                      docker push ${GITHUBIMAGE}:v${ALPINETAG}-$(arch)
                       docker rmi \
-                        ghcr.io/imagegenius/aports-cache:v${ALPINETAG}-$(arch) || :
+                        ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) || :
                    '''
                 echo "Removing dangling images"
                 sh '''#!/bin/bash
@@ -91,20 +100,18 @@ pipeline {
     }
     stage ('Copy Packages to Webroot') {
       steps {
+		// 'version' and 'arches' need to match matrix axis'
         sh '''#!/bin/bash
               versions=(3.17)
               arches=(x86_64 aarch64)
 
               for version in "${versions[@]}"; do
                 for arch in "${arches[@]}"; do
-                  docker pull ghcr.io/imagegenius/aports-cache:v${version}-${arch}
-                            
-                  docker create --name aports-${version}-${arch} ghcr.io/imagegenius/aports-cache:v${version}-${arch} blah
-              
+                  docker pull ${GITHUBIMAGE}:v${version}-${arch}     
+                  docker create --name aports-${version}-${arch} ${GITHUBIMAGE}:v${version}-${arch} blah
                   docker cp aports-${version}-${arch}:/aports .
-              
                   docker rm aports-${version}-${arch}
-                  docker rmi ghcr.io/imagegenius/aports-cache:v${version}-${arch}
+                  docker rmi ${GITHUBIMAGE}:v${version}-${arch}
                 done
               done
               rsync -av --delete aports/* /var/www/packages/
@@ -118,12 +125,12 @@ pipeline {
       script{
         if (currentBuild.currentResult == "SUCCESS"){
           sh ''' curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://wiki.jenkins.io/JENKINS/attachments/2916393/57409617.png","embeds": [{"color": 1681177,\
-                 "description": "**aports Build '${BUILD_NUMBER}' Results**\\n**Status:**  Success\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
+                 "description": "**'${IG_REPO}'**\\n**Build**  '${BUILD_NUMBER}'\\n**Status:**  Success\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
                  "username": "Jenkins"}' ${BUILDS_DISCORD} '''
         }
         else {
           sh ''' curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://wiki.jenkins.io/JENKINS/attachments/2916393/57409617.png","embeds": [{"color": 16711680,\
-                 "description": "**aports Build '${BUILD_NUMBER}' Results**\\n**Status:**  failure\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
+                 "description": "**'${IG_REPO}'**\\n**Build**  '${BUILD_NUMBER}'\\n**Status:**  Failure\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
                  "username": "Jenkins"}' ${BUILDS_DISCORD} '''
         }
       }
