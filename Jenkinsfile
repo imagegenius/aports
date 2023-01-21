@@ -98,9 +98,10 @@ pipeline {
         }
       }
     }
-    stage ('Copy Packages to Webroot') {
+    stage ('Download Packages') {
       steps {
 		// 'version' and 'arches' need to match matrix axis'
+		echo "Get packages from images"
         sh '''#!/bin/bash
               versions=(3.17)
               arches=(x86_64 aarch64)
@@ -117,6 +118,30 @@ pipeline {
               rsync -av --delete aports/* /var/www/packages/
               rm -rf aports
            '''
+		echo "Copy Packages to Webroot"
+        sh '''#!/bin/bash
+              rsync -av --delete aports/* /var/www/packages/
+              rm -rf aports
+           '''
+      }
+    }
+    stage('Purge Cloudflare Cache') {
+      steps {
+        withCredentials([
+          [
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'cloudflare_purge',
+            usernameVariable: 'ZONE_ID',
+            passwordVariable: 'CF_API_KEY'
+          ]
+        ]) {
+          sh '''#!/bin/bash
+                curl -X POST https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache \
+			      -H "Authorization: Bearer ${CF_API_KEY}" \
+			      -H "Content-Type: application/json" \
+			      --data '{"files":["http://packages.imagegenius.io/*"]}'
+           '''
+        }
       }
     }
   }
