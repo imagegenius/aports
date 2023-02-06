@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    label 'MASTER'
+    label 'WEBSERVER'
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '60'))
