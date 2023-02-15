@@ -11,13 +11,13 @@ ENV PACKAGER_PRIVKEY="/config/.abuild/ig.rsa"
 ARG PRIVKEY
 ARG ALPINETAG
 
+COPY . /config/aports
 COPY --from=cache /aports/v${ALPINETAG} /config/packages/ig
 
 RUN \
   echo "**** install runtime packages ****" && \
   apk add --no-cache \
     alpine-sdk \
-    git \
     sudo \
     aports-build && \
   echo "**** create abc user and setup sudo ****" && \
@@ -30,8 +30,7 @@ RUN \
   PUBKEY=$(curl -s https://packages.imagegenius.io/ig.rsa.pub) && \
   echo -e "$PUBKEY" >/config/.abuild/ig.rsa.pub && \
   echo -e "$PUBKEY" >/etc/apk/keys/ig.rsa.pub && \
-  echo "**** clone aports repo and run buildrepo ****" && \
-  git clone https://github.com/imagegenius/aports /config/aports && \
+  echo "**** run buildrepo ****" && \
   abuild-apk update && \
   apk update && \
   chown -R abc:abc /config && \
