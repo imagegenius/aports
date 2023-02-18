@@ -1,1 +1,9 @@
+FROM alpine as builder
+
+ARG ALPINETAG
+
+RUN \
+  mkdir -p /aports/v${ALPINETAG}
+
 FROM scratch
+COPY --from=builder /aports /aports
