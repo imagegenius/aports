@@ -1,0 +1,36 @@
+# Maintainer: hydaz <ci@imagegenius.io>
+
+pkgname=pytorch
+pkgver=1.13.1
+pkgrel=0
+pkgdesc="A deep learning framework for fast, flexible experimentation"
+url="https://pytorch.org"
+arch="all"
+license="BSD-3-Clause"
+depends=""
+makedepends="python3-dev py3-setuptools py3-pip py3-wheel py3-cffi py3-numpy py3-typing_extensions py3-six py3-yaml py3-pyyaml py3-tqdm py3-packaging py3-brotli py3-requests py3-protobuf py3-pillow py3-joblib py3-scikit-learn py3-cython py3-h5py py3-pandas py3-llvmlite py3-numba py3-jupyter_client py3-ipykernel py3-notebook py3-matplotlib py3-scipy"
+source="https://github.com/pytorch/pytorch/archive/v${pkgver}.tar.gz"
+
+prepare() {
+    cd "$srcdir/$pkgname-$pkgver"
+}
+
+build() {
+    cd "$srcdir/$pkgname-$pkgver"
+    export NO_CUDA=1  # Disable CUDA support
+    export NO_DISTRIBUTED=1  # Disable distributed training
+    export NO_MKLDNN=1  # Disable MKL-DNN acceleration
+    export BUILD_TEST=0  # Disable building tests
+    export USE_NUMPY=1  # Use the numpy provided by Alpine
+    export BLAS=OpenBLAS  # Use OpenBLAS instead of ATLAS
+    export USE_FBGEMM=0  # Disable Facebook Gemm acceleration
+    export USE_QNNPACK=0  # Disable QNNPACK acceleration
+    export USE_XNNPACK=0  # Disable XNNPACK acceleration
+    export MAX_JOBS=$(nproc)  # Use all available CPUs for building
+    python3 setup.py build
+}
+
+package() {
+    cd "$srcdir/$pkgname-$pkgver"
+    python3 setup.py install --root="$pkgdir" --optimize=1
+}
