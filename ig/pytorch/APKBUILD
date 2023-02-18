@@ -9,7 +9,8 @@ arch="all"
 license="BSD-3-Clause"
 depends=""
 makedepends="python3-dev py3-setuptools py3-pip py3-wheel py3-cffi py3-numpy py3-typing_extensions py3-six py3-yaml py3-pyyaml py3-tqdm py3-packaging py3-brotli py3-requests py3-protobuf py3-pillow py3-joblib py3-scikit-learn py3-cython py3-h5py py3-pandas py3-llvmlite py3-numba py3-jupyter_client py3-ipykernel py3-notebook py3-matplotlib py3-scipy"
-source="https://github.com/pytorch/pytorch/archive/v${pkgver}.tar.gz"
+source="https://github.com/pytorch/pytorch/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+
 
 prepare() {
     cd "$srcdir/$pkgname-$pkgver"
@@ -34,3 +35,5 @@ package() {
     cd "$srcdir/$pkgname-$pkgver"
     python3 setup.py install --root="$pkgdir" --optimize=1
 }
+
+sha512sums="32e88d05600291a355f6c49a71202d513eb7aadfbe6c25f0af6fbe8bdb7ef25fbd96f32292b6c50b1c0773d585feb7a6f193cca5ea23e91cdef59912d3273c9c  pytorch-1.13.1.tar.gz"
