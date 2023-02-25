@@ -3,37 +3,23 @@
 pkgname=pytorch
 pkgver=1.13.1
 pkgrel=0
-pkgdesc="A deep learning framework for fast, flexible experimentation"
-url="https://pytorch.org"
+pkgdesc="A deep learning framework for fast, flexible experimentation."
+url="https://pytorch.org/"
 arch="all"
 license="BSD-3-Clause"
 depends=""
-makedepends="python3-dev py3-setuptools py3-pip py3-wheel py3-cffi py3-numpy py3-typing-extensions py3-six py3-yaml py3-tqdm py3-packaging py3-brotli py3-requests py3-protobuf py3-pillow py3-joblib py3-scikit-learn cython py3-h5py py3-pandas py3-jupyter_client py3-ipykernel py3-matplotlib py3-scipy"
-source="https://github.com/pytorch/pytorch/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
-
-
-prepare() {
-    cd "$srcdir/$pkgname-$pkgver"
-}
+makedepends="gcc g++ git make cmake python3-dev py3-setuptools py3-wheel openblas-dev"
+source="https://github.com/pytorch/pytorch/archive/v${pkgver}.tar.gz"
 
 build() {
-    cd "$srcdir/$pkgname-$pkgver"
-    export NO_CUDA=1  # Disable CUDA support
-    export NO_DISTRIBUTED=1  # Disable distributed training
-    export NO_MKLDNN=1  # Disable MKL-DNN acceleration
-    export BUILD_TEST=0  # Disable building tests
-    export USE_NUMPY=1  # Use the numpy provided by Alpine
-    export BLAS=OpenBLAS  # Use OpenBLAS instead of ATLAS
-    export USE_FBGEMM=0  # Disable Facebook Gemm acceleration
-    export USE_QNNPACK=0  # Disable QNNPACK acceleration
-    export USE_XNNPACK=0  # Disable XNNPACK acceleration
-    export MAX_JOBS=$(nproc)  # Use all available CPUs for building
-    python3 setup.py build
+	cd "$srcdir/$pkgname-$pkgver"
+	export CMAKE_PREFIX_PATH=/usr/lib/cmake/openblas:$CMAKE_PREFIX_PATH
+	python3 setup.py build
 }
 
 package() {
-    cd "$srcdir/$pkgname-$pkgver"
-    python3 setup.py install --root="$pkgdir" --optimize=1
+	cd "$srcdir/$pkgname-$pkgver"
+	python3 setup.py install --root="$pkgdir/" --optimize=1
 }
 
-sha512sums="f16f89d027efade11d057245cad5b69a390e88b458398310ae30de2dbff7c8fd7f1165be7b8da7ea989c81ac3f5a66c5cb9050610e441a97c83fb8aa28c0bd62 pytorch-1.13.1.tar.gz"
+sha512sums="f16f89d027efade11d057245cad5b69a390e88b458398310ae30de2dbff7c8fd7f1165be7b8da7ea989c81ac3f5a66c5cb9050610e441a97c83fb8aa28c0bd62  v1.13.1.tar.gz"
