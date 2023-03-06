@@ -26,7 +26,7 @@ pipeline {
         axes {
           axis {
             name 'MATRIXARCH'
-            values 'X86-64-MULTI', 'ARM64'
+            values 'X86-64', 'ARM64'
           }
           axis {
             name 'ALPINETAG'
@@ -59,39 +59,31 @@ pipeline {
                    '''
                 echo 'Building packages'
                 sh '''#!/bin/bash
-                      docker pull ${GITHUBIMAGE}:v${ALPINETAG}-$(arch)
+                      if [[ "$MATRIXARCH" == "X86-64" ]]; then
+                        ARCH="x86_64"
+                      elif [[ "$MATRIXARCH" == "ARM64" ]]; then
+                        ARCH="aarch64"
+                      elif [[ "$MATRIXARCH" == "ARMHF" ]]; then
+                        ARCH="armhf"
+                      fi
+                      docker pull ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}
                       if [ $? -ne 0 ]; then
-                        echo "It doesn't look like \"${GITHUBIMAGE}:v${ALPINETAG}-$(arch)\" exists on ghcr, building an empty image"
-                        docker build . -t ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) -f Dockerfile.empty
+                        echo "It doesn't look like \"${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}\" exists on ghcr, building an empty image"
                         docker build \
-                          --no-cache -t ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) \
-                          --build-arg PRIVKEY="$PRIVKEY" \
+                          -t ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH} \
                           --build-arg ALPINETAG=${ALPINETAG} \
-                          --build-arg ARCH=$(arch) .
-                      else
-                        docker build \
-                          --no-cache --pull -t ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) \
-                          --build-arg PRIVKEY="$PRIVKEY" \
-                          --build-arg ALPINETAG=${ALPINETAG} \
-                          --build-arg ARCH=$(arch) .
+                          -f Dockerfile.empty .
+                        docker push ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}
                       fi
-                   '''
-                echo 'Pushing image to ghcr'
-                sh '''#!/bin/bash
-                      docker push ${GITHUBIMAGE}:v${ALPINETAG}-$(arch)
+                      docker build \
+                        --no-cache --pull -t ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH} \
+                        --build-arg PRIVKEY="$PRIVKEY" \
+                        --build-arg ALPINETAG=${ALPINETAG} \
+                        --build-arg ARCH=${ARCH} .
+                      docker push ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}
                       docker rmi \
-                        ${GITHUBIMAGE}:v${ALPINETAG}-$(arch) || :
+                        ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH} || :
                    '''
-                echo "Removing dangling images"
-                sh '''#!/bin/bash
-                      dangling_images=$(docker images -f dangling=true -q)
-                      if [ -n "$dangling_images" ]; then
-                        echo "Removing dangling images..."
-                        docker rmi $dangling_images
-                      else
-                        echo "No dangling images found."
-                      fi
-               '''
               }
             }
           }
@@ -105,7 +97,6 @@ pipeline {
         sh '''#!/bin/bash
               versions=(3.17)
               arches=(x86_64 aarch64)
-
               for version in "${versions[@]}"; do
                 for arch in "${arches[@]}"; do
                   docker pull ${GITHUBIMAGE}:v${version}-${arch}     
@@ -133,7 +124,7 @@ pipeline {
             passwordVariable: 'CF_API_KEY'
           ]
         ]) {
-		  // would be better to purge everything under packages.imagegenius.io/ but cant get it to work
+          // would be better to purge everything under packages.imagegenius.io/ but cant get it to work
           sh '''#!/bin/bash
                 curl -X POST https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache \
                   -H "Authorization: Bearer ${CF_API_KEY}" \
@@ -149,12 +140,12 @@ pipeline {
       script{
         if (currentBuild.currentResult == "SUCCESS"){
           sh ''' curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://wiki.jenkins.io/JENKINS/attachments/2916393/57409617.png","embeds": [{"color": 1681177,\
-                 "description": "**'${IG_REPO}' Build '${BUILD_NUMBER}' ({{ ig_branch }})**\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
+                 "description": "**'${IG_REPO}' build '${BUILD_NUMBER}'**\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
                  "username": "Jenkins"}' ${BUILDS_DISCORD} '''
         }
         else {
           sh ''' curl -X POST -H "Content-Type: application/json" --data '{"avatar_url": "https://wiki.jenkins.io/JENKINS/attachments/2916393/57409617.png","embeds": [{"color": 16711680,\
-                 "description": "**'${IG_REPO}' Build '${BUILD_NUMBER}' Failed! ({{ ig_branch }})**\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
+                 "description": "**'${IG_REPO}' build '${BUILD_NUMBER}' Failed!**\\n**Job:** '${RUN_DISPLAY_URL}'\\n"}],\
                  "username": "Jenkins"}' ${BUILDS_DISCORD} '''
         }
       }
