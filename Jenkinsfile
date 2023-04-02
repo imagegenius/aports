@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    label 'WEBSERVER'
+    label 'X86-BUILDER-1'
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '60'))
@@ -92,45 +92,37 @@ pipeline {
     }
     stage ('Download Packages') {
       steps {
-        // 'version' and 'arches' need to match matrix axis'
-        echo "Get packages from images"
-        sh '''#!/bin/bash
-              versions=(3.17)
-              arches=(x86_64 aarch64)
-              for version in "${versions[@]}"; do
-                for arch in "${arches[@]}"; do
-                  docker pull ${GITHUBIMAGE}:v${version}-${arch}     
-                  docker create --name aports-${version}-${arch} ${GITHUBIMAGE}:v${version}-${arch} blah
-                  docker cp aports-${version}-${arch}:/aports .
-                  docker rm aports-${version}-${arch}
-                  docker rmi ${GITHUBIMAGE}:v${version}-${arch}
-                done
-              done
-           '''
-        echo "Copy Packages to Webroot"
-        sh '''#!/bin/bash
-              rsync -av --delete aports/* /var/www/packages/
-              rm -rf aports
-           '''
-      }
-    }
-    stage('Purge Cloudflare Cache') {
-      steps {
         withCredentials([
-          [
-            $class: 'UsernamePasswordMultiBinding',
-            credentialsId: 'cloudflare_purge',
-            usernameVariable: 'ZONE_ID',
-            passwordVariable: 'CF_API_KEY'
-          ]
+          string(credentialsId: 'ci-tests-s3-key-id', variable: 'S3_KEY'),
+          string(credentialsId: 'ci-tests-s3-secret-access-key', variable: 'S3_SECRET')
         ]) {
-          // would be better to purge everything under packages.imagegenius.io/ but cant get it to work
+          // 'version' and 'arches' need to match matrix axis'
+          echo "Get packages from images"
           sh '''#!/bin/bash
-                curl -X POST https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache \
-                  -H "Authorization: Bearer ${CF_API_KEY}" \
-                  -H "Content-Type: application/json" \
-                  --data '{"purge_everything":true}' 
-           '''
+                versions=(3.17)
+                arches=(x86_64 aarch64)
+                for version in "${versions[@]}"; do
+                  for arch in "${arches[@]}"; do
+                    docker pull ${GITHUBIMAGE}:v${version}-${arch}     
+                    docker create --name aports-${version}-${arch} ${GITHUBIMAGE}:v${version}-${arch} blah
+                    docker cp aports-${version}-${arch}:/aports .
+                    docker rm aports-${version}-${arch}
+                    docker rmi ${GITHUBIMAGE}:v${version}-${arch}
+                  done
+                done
+             '''
+          echo "Copy Packages to Webroot"
+          sh '''#!/bin/bash
+                rclone sync aports s3:packages.imagegenius.io \
+                  --include "*/" \
+                  --include "*/**" \
+                  --exclude "*" \
+                  --s3-access-key-id=${S3_KEY} \
+                  --s3-secret-access-key=${S3_SECRET} \
+                  --ignore-errors \
+                  --no-update-modtime
+                rm -rf aports
+             '''
         }
       }
     }

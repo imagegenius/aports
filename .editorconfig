@@ -1,6 +1,3 @@
-# This file is globally distributed to all container image projects from
-# https://github.com/imagegenius/docker-jenkins-builder/blob/master/.editorconfig
-
 # top-most EditorConfig file
 root = true
 
@@ -10,11 +7,9 @@ end_of_line = lf
 insert_final_newline = true
 # trim_trailing_whitespace may cause unintended issues and should not be globally set true
 trim_trailing_whitespace = false
-
-[{Dockerfile*,**.yml}]
-indent_style = space
-indent_size = 2
-
-[{**.sh,root/etc/cont-init.d/**,root/etc/services.d/**}]
 indent_style = space
 indent_size = 4
+
+[Dockerfile]
+indent_style = space
+indent_size = 2
