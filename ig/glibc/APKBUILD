@@ -2,9 +2,9 @@
 # Maintainer: hydaz <ci@imagegenius.io>
 
 pkgname="glibc"
-pkgver="2.35"
-rlrel="1"
-pkgrel="5"
+pkgver="2.37"
+rlrel="3"
+pkgrel="0"
 pkgdesc="GNU C Library compatibility layer"
 arch="x86_64 aarch64"
 url="https://github.com/imagegenius/docker-glibc-builder"
