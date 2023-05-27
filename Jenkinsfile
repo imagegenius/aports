@@ -59,7 +59,6 @@ pipeline {
                    '''
                 echo 'Building packages'
                 sh '''#!/bin/bash
-                      set -e
                       if [[ "$MATRIXARCH" == "X86-64" ]]; then
                         ARCH="x86_64"
                         BUILD_ARCH="amd64"
@@ -83,6 +82,7 @@ pipeline {
                           --builder=${BUILDX_CONTAINER} --load
                         docker push ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}
                       fi
+                      set -e
                       docker buildx build \
                         --no-cache --pull -t ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH} \
                         --build-arg PRIVKEY="$PRIVKEY" \
