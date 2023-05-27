@@ -30,7 +30,7 @@ pipeline {
           }
           axis {
             name 'ALPINETAG'
-            values '3.17'
+            values '3.17', 'edge'
           }
         }
         stages {
@@ -59,30 +59,41 @@ pipeline {
                    '''
                 echo 'Building packages'
                 sh '''#!/bin/bash
+                      set -e
                       if [[ "$MATRIXARCH" == "X86-64" ]]; then
                         ARCH="x86_64"
+                        BUILD_ARCH="amd64"
                       elif [[ "$MATRIXARCH" == "ARM64" ]]; then
-                        ARCH="aarch64"
+                        ARCH="arm64"
+                        BUILD_ARCH="aarch64"
                       elif [[ "$MATRIXARCH" == "ARMHF" ]]; then
                         ARCH="armhf"
+                        BUILD_ARCH="arm/v7"
                       fi
+                      BUILDX_CONTAINER=$(head /dev/urandom | tr -dc 'a-z' | head -c12)
+                      docker buildx create --driver=docker-container --name=${BUILDX_CONTAINER}
                       docker pull ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}
                       if [ $? -ne 0 ]; then
                         echo "It doesn't look like \"${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}\" exists on ghcr, building an empty image"
-                        docker build \
+                        docker buildx build \
                           -t ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH} \
                           --build-arg ALPINETAG=${ALPINETAG} \
-                          -f Dockerfile.empty .
+                          -f Dockerfile.empty . \
+                          --platform=linux/${BUILD_ARCH} \
+                          --builder=${BUILDX_CONTAINER} --load
                         docker push ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}
                       fi
-                      docker build \
+                      docker buildx build \
                         --no-cache --pull -t ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH} \
                         --build-arg PRIVKEY="$PRIVKEY" \
                         --build-arg ALPINETAG=${ALPINETAG} \
-                        --build-arg ARCH=${ARCH} .
+                        --build-arg ARCH=${ARCH} . \
+                        --platform=linux/${BUILD_ARCH} \
+                        --builder=${BUILDX_CONTAINER} --load
                       docker push ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH}
                       docker rmi \
                         ${GITHUBIMAGE}:v${ALPINETAG}-${ARCH} || :
+                      docker buildx rm ${BUILDX_CONTAINER}
                    '''
               }
             }
@@ -99,7 +110,7 @@ pipeline {
           // 'version' and 'arches' need to match matrix axis'
           echo "Get packages from images"
           sh '''#!/bin/bash
-                versions=(3.17)
+                versions=(3.17 edge)
                 arches=(x86_64 aarch64)
                 for version in "${versions[@]}"; do
                   for arch in "${arches[@]}"; do
