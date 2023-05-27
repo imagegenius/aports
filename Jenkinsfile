@@ -113,6 +113,7 @@ pipeline {
              '''
           echo "Copy Packages to Webroot"
           sh '''#!/bin/bash
+                set -e
                 rclone sync aports s3:packages.imagegenius.io \
                   --include "*/" \
                   --include "*/**" \
