@@ -30,7 +30,7 @@ pipeline {
           }
           axis {
             name 'ALPINETAG'
-            values '3.17', 'edge'
+            values '3.17'
           }
         }
         stages {
@@ -63,7 +63,7 @@ pipeline {
                         ARCH="x86_64"
                         BUILD_ARCH="amd64"
                       elif [[ "$MATRIXARCH" == "ARM64" ]]; then
-                        ARCH="arm64"
+                        ARCH="aarch64"
                         BUILD_ARCH="aarch64"
                       elif [[ "$MATRIXARCH" == "ARMHF" ]]; then
                         ARCH="armhf"
@@ -110,7 +110,7 @@ pipeline {
           // 'version' and 'arches' need to match matrix axis'
           echo "Get packages from images"
           sh '''#!/bin/bash
-                versions=(3.17 edge)
+                versions=(3.17)
                 arches=(x86_64 aarch64)
                 for version in "${versions[@]}"; do
                   for arch in "${arches[@]}"; do
