@@ -34,7 +34,7 @@ RUN \
   abuild-apk update && \
   apk update && \
   chown -R abc:abc /config && \
-  su abc -c "buildrepo -p ig"
+  su abc -c "buildrepo -p ig -d /config/packages"
 
 FROM scratch
 
