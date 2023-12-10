@@ -110,7 +110,7 @@ pipeline {
           // 'version' and 'arches' need to match matrix axis'
           echo "Get packages from images"
           sh '''#!/bin/bash
-                versions=(3.17 3.18)
+                versions=(3.18 3.19)
                 arches=(x86_64 aarch64)
                 for version in "${versions[@]}"; do
                   for arch in "${arches[@]}"; do
