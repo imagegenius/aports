@@ -30,7 +30,7 @@ pipeline {
           }
           axis {
             name 'ALPINETAG'
-            values '3.17', '3.18'
+            values '3.18', '3.19'
           }
         }
         stages {
