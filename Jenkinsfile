@@ -30,7 +30,7 @@ pipeline {
           }
           axis {
             name 'ALPINETAG'
-            values '3.18', '3.19'
+            values '3.19', '3.20'
           }
         }
         stages {
@@ -110,7 +110,7 @@ pipeline {
           // 'version' and 'arches' need to match matrix axis'
           echo "Get packages from images"
           sh '''#!/bin/bash
-                versions=(3.18 3.19)
+                versions=(3.19 3.20)
                 arches=(x86_64 aarch64)
                 for version in "${versions[@]}"; do
                   for arch in "${arches[@]}"; do

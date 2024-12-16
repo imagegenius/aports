@@ -18,6 +18,7 @@ RUN \
   echo "**** install runtime packages ****" && \
   apk add --no-cache \
     alpine-sdk \
+    curl \
     sudo \
     aports-build && \
   echo "**** create abc user and setup sudo ****" && \
