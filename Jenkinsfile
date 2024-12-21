@@ -126,13 +126,11 @@ pipeline {
           sh '''#!/bin/bash
                 set -e
                 rclone sync aports s3:packages.imagegenius.io \
-                  --include "*/" \
-                  --include "*/**" \
-                  --exclude "*" \
+                  --filter "+ */" \
+                  --filter "+ */**" \
+                  --filter "- *" \
                   --s3-access-key-id=${S3_KEY} \
-                  --s3-secret-access-key=${S3_SECRET} \
-                  --ignore-errors \
-                  --no-update-modtime
+                  --s3-secret-access-key=${S3_SECRET}
                 rm -rf aports
              '''
         }
